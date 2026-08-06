@@ -1,0 +1,53 @@
+defaults:
+  - override hydra/launcher: joblib
+
+in_size: 15
+out_size: 15
+epochs: 7
+optim: 'adam'
+lr: 5e-3
+wd: 1e-1
+seed: 3407
+metric: 'lsm'
+device: 'cpu'
+bs: 64
+iterations: 180
+scoring_metric: 'acc'
+nclass: 5
+data_path: '${oc.env:CORSW_DATA,./data}/MAMEM'
+results_root: './results/mamem'
+exp_tag: 'swd_w${swd_weight}_proj${swd_num_projections}_p${swd_p}_${metric}'
+res_path: '${results_root}/${exp_tag}'
+model_path: './checkpoints/mamem/${exp_tag}'
+swd_weight: 0.3
+swd_num_projections: 300
+swd_p: 2
+swd_random_state: 123456
+swd_metric: 'lsm'
+swd_input_space: 'pullback'
+model_name: 'CorrAtt'
+
+mode: 'run'
+subject: 1
+num_subjects: 11
+num_repeats: 10
+num_sessions: 5
+test_session: 1
+val_session: 0
+run_results_dir: '${res_path}/runs'
+
+
+hydra:
+  run:
+    dir: outputs/mamem/
+  sweep:
+    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}/mamem/
+    subdir: '.'
+  launcher:
+    _target_: hydra_plugins.hydra_joblib_launcher.joblib_launcher.JoblibLauncher
+    n_jobs: 1
+  job_logging:
+    handlers:
+      file:
+        class: logging.FileHandler
+        filename: default.log

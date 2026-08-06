@@ -1,0 +1,48 @@
+defaults:
+  - override hydra/launcher: joblib
+
+in_size: 20
+out_size: 20
+epochs: 3
+optim: 'adam'
+lr: 5e-4
+wd: 1e-1
+seed: 3407
+device: "cpu"
+bs: 128
+iterations: 350
+scoring_metric: 'acc'
+nclass: 4
+metric: "olm"
+
+data_path: '${oc.env:CORSW_DATA,./data}/BCICIV_2a_mat1'
+results_root: './results/bci2a'
+exp_tag: 'swd_w${swd_weight}_proj${swd_num_projections}_p${swd_p}_${metric}'
+res_path: '${results_root}/${exp_tag}'
+model_path: './checkpoints/bci2a/${exp_tag}'
+swd_weight: 0.0
+swd_num_projections: 1000
+swd_p: 2
+swd_random_state: 123456
+swd_metric: 'olm'
+swd_input_space: 'pullback'
+mode: 'run'
+subject: 1
+num_subjects: 9
+num_repeats: 10
+run_results_dir: '${res_path}/runs'
+
+hydra:
+  run:
+    dir: outputs/bci/
+  sweep:
+    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}/bci/
+    subdir: '.'
+  launcher:
+    _target_: hydra_plugins.hydra_joblib_launcher.joblib_launcher.JoblibLauncher
+    n_jobs: 1
+  job_logging:
+    handlers:
+      file:
+        class: logging.FileHandler
+        filename: default.log
